@@ -1,0 +1,46 @@
+pour chaque classe implemente j'ai effectues ces modifications pour bien explique les lignes de code :
+Repetition.java
+
+Ajout d'un champ myExceptions (List<LocalDate>) pour stocker les jours d'exception.
+Ajout d'un champ myTermination (Termination) optionnel.
+Implémentation de addException(LocalDate) (ajoute si non null et non présent).
+Implémentation de setTermination(Termination).
+Méthodes utilitaires isException(LocalDate) et getTermination().
+
+Termination.java
+
+Constructeur Termination(LocalDate start, ChronoUnit frequency, LocalDate terminationInclusive)
+
+Calcul du nombre d'occurrences = frequency.between(start, terminationInclusive) + 1.
+Stockage de la date de terminaison inclusive.
+Constructeur Termination(LocalDate start, ChronoUnit frequency, long numberOfOccurrences)
+
+Calcul de la date de terminaison = start.plus(numberOfOccurrences - 1, frequency).
+Stockage du nombre d'occurrences.
+
+Event.java
+
+Champ myRepetition pour gérer la répétition (Repetition).
+setRepetition(ChronoUnit) : crée une Repetition.
+addException(LocalDate) : délègue à Repetition (erreur si pas de répétition).
+setTermination(LocalDate) et setTermination(long) : construisent un Termination à partir de la date de début et de la fréquence, puis la fixent dans la Repetition.
+getNumberOfOccurrences() : retourne 0 si y'a p pas de répétition ou termination, sinon le nombre à partir de Termination.
+getTerminationDate() : retourne null si pas de répétition/termination, sinon la date de terminaison.
+isInDay(LocalDate)
+Si aDay null -> false.
+Pour les événements répétitifs : vérification précoce des exceptions , ppuis gestion de la présence de l'événement sur la journée.
+Pour événements simples (sans répétition) : test d'intersection entre l'intervalle événement et les bornes du jour.
+Pour répétitions : calcule l'occurrence "du jour" et l'occurrence précédente (pour gérer chevauchements d'une occurrence sur le jour testé), filtre par date de début, par termination (date ou nombre d'occurrences) et par exceptions, puis teste l'intersection temporelle occurrence/jour.
+
+Agenda.java
+
+ List<Event> events.
+addEvent(Event) : ajoute si il est non null.
+eventsInDay(LocalDate) : retourne la liste des événements pour lesquels isInDay(day) est vrai.
+
+Comportement et hypothèses importantes
+
+Une exception pour une date empêche toute occurrence couvrant cette journée (même si une occurrence précédente chevauche la journée).
+La terminaison peut être exprimée par une date inclusive ou par un nombre d'occurrences ; les deux conversions (date -> count et count -> date) sont implémentées.
+getNumberOfOccurrences() renvoie 0 quand il n'y a pas de terminaison.
+getTerminationDate() renvoie null quand il n'y a pas de terminaison.

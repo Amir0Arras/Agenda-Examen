@@ -5,15 +5,15 @@ import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
 
 public class Termination {
+    private final LocalDate myTerminationDateInclusive;
+    private final long myNumberOfOccurrences;
 
     public LocalDate terminationDateInclusive() {
-        // TODO : implémenter cette méthode
-        throw new UnsupportedOperationException("Pas encore implémenté");
+        return myTerminationDateInclusive;
     }
 
     public long numberOfOccurrences() {
-        // TODO : implémenter cette méthode
-        throw new UnsupportedOperationException("Pas encore implémenté");
+        return myNumberOfOccurrences;
     }
 
 
@@ -30,8 +30,13 @@ public class Termination {
      * @see ChronoUnit#between(Temporal, Temporal)
      */
     public Termination(LocalDate start, ChronoUnit frequency, LocalDate terminationInclusive) {
-        // TODO : implémenter cette méthode
-        throw new UnsupportedOperationException("Pas encore implémenté");
+        if (start == null || frequency == null || terminationInclusive == null) {
+            throw new IllegalArgumentException("null not allowed");
+        }
+        // number of intervals between start and terminationInclusive, inclusive occurrences = between + 1
+        long between = frequency.between(start, terminationInclusive);
+        this.myNumberOfOccurrences = between + 1;
+        this.myTerminationDateInclusive = terminationInclusive;
     }
 
     /**
@@ -46,8 +51,12 @@ public class Termination {
      * @param numberOfOccurrences the number of occurrences of this repetitive event
      */
     public Termination(LocalDate start, ChronoUnit frequency, long numberOfOccurrences) {
-        // TODO : implémenter cette méthode
-        throw new UnsupportedOperationException("Pas encore implémenté");
+        if (start == null || frequency == null || numberOfOccurrences <= 0) {
+            throw new IllegalArgumentException("invalid arguments");
+        }
+        this.myNumberOfOccurrences = numberOfOccurrences;
+        // termination date is start plus (numberOfOccurrences - 1) intervals
+        this.myTerminationDateInclusive = start.plus(numberOfOccurrences - 1, frequency);
     }
 
 }

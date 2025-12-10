@@ -1,2 +1,45 @@
-Ecrire ici votre réponse à la question UML.
+Comparaison des deux modèles UML
 
+
+1. Premier diagramme : (ou on a utulise la composition)
+On utilise la composition : Event contient eventuellement un objet Repetition et un objet Termination.
+La répétition n’est pas un type distinct, mais une fonctionnalité optionnelle,(y'a des events n'ont pas repetition et autres oui )
+Avantages :
+--> un événement peut être simple ou répétitif sans changer de classe.
+--->Évolutif : on peut facilement ajouter de nouveaux types de répétition ou de fin sansde modifier Event.
+-->Structure separe  (Event / Repetition / Termination), conforme au principe de responsabilité unique.
+-->facile à tester.(selon l'implemntation des tests qu'on a )
+Inconvénients :
+-->Modèle plus complexe à mettre en place.(surtout por les validations )
+-->Moins explicite : le type Event ne dit pas tout.
+-->Necessite des validations ou on doit verifier  (par exemple  empecher une Termination sans Repetition).
+
+
+2. Deuxième diagramme : (ou on a utulise l'heritage) 
+Ici, on crée une hiérarchie de classes :
+Event → événement simple
+RepetitiveEvent → événement répétitif
+FixedTerminationEvent → vénement répétitif avec fin
+Avantages :
+Très lisible : le type d’un objet indique immédiatement sa nature.(et facile a implementer )
+Méthodes spécialisées selon le type d’événement.
+Réutilisation directe via l’héritage.
+Inconvénients :
+Structure rigide : ajouter un nouveau type impose une nouvelle sous-classe.
+Risques d’explosion de la hiérarchie si l’application eevolue beaucoup.
+Sous-classes intermédiaires parfois artificielles (si on a pas events repetetifs par exemple ).
+Peu adaptable si les besoins changent.
+
+
+Conclusion 
+
+
+
+L’approche par composition est la plus flexible et convient mieux pour une application qui doit évoluer
+ — c’est d’ailleurs ce qu’on avait fait dans le TP : on ajoutait des comportements en combinant des objets plutôt qu’en multipliant les sous-classes.(pour le tp de bandeau)
+
+L’approche par héritage est plus simple et plus lisible quand les besoins sont limités et bien définis 
+— comme ce qu’on avait vu au début du cours, où l’on modélisait des hiérarchies simples avec “est un”.
+
+Donc, comme ona vu avant, la composition permet d’étendre facilement un modèle.
+ou le 1er modele c'est le mieux pour le fonctionnement 100%

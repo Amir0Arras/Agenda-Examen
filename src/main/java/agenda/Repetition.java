@@ -21,6 +21,12 @@ public class Repetition {
      */
     private final ChronoUnit myFrequency;
 
+    // Exceptions to the repetition
+    private final List<LocalDate> myExceptions = new ArrayList<>();
+
+    // Optional termination
+    private Termination myTermination = null;
+
     public Repetition(ChronoUnit myFrequency) {
         this.myFrequency = myFrequency;
     }
@@ -30,8 +36,10 @@ public class Repetition {
      * @param date un date à laquelle l'événement ne doit pas se répéter
      */
     public void addException(LocalDate date) {
-        // TODO : implémenter cette méthode
-        throw new UnsupportedOperationException("Pas encore implémenté");
+        // add if not already present
+        if (date != null && !myExceptions.contains(date)) {
+            myExceptions.add(date);
+        }
     }
 
     /**
@@ -39,8 +47,15 @@ public class Repetition {
      * @param termination la terminaison de la répétition
      */
     public void setTermination(Termination termination) {
-        // TODO : implémenter cette méthode
-        throw new UnsupportedOperationException("Pas encore implémenté");
+        this.myTermination = termination;
+    }
 
+    // Utility getters used by Event
+    public boolean isException(LocalDate d) {
+        return d != null && myExceptions.contains(d);
+    }
+
+    public Termination getTermination() {
+        return myTermination;
     }
 }
