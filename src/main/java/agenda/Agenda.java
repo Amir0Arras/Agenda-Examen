@@ -65,7 +65,7 @@ public class Agenda {
         LocalDateTime eEnd = eStart.plus(e.getDuration());
 
         for (Event other : events) {
-            if (other == e) continue; // ignore same object
+            if (other == e) continue; // ignore le mem object
             // only consider non-repetitive events for conflict checks
             if (other.isRepetitive()) continue;
             LocalDateTime oStart = other.getStart();
