@@ -7,6 +7,7 @@ import java.time.temporal.Temporal;
 public class Termination {
     private final LocalDate myTerminationDateInclusive;
     private final long myNumberOfOccurrences;
+    private final boolean myFromDate; // true if constructed from a termination date, false if from count
 
     public LocalDate terminationDateInclusive() {
         return myTerminationDateInclusive;
@@ -14,6 +15,10 @@ public class Termination {
 
     public long numberOfOccurrences() {
         return myNumberOfOccurrences;
+    }
+
+    public boolean isFromDate() {
+        return myFromDate;
     }
 
 
@@ -37,6 +42,7 @@ public class Termination {
         long between = frequency.between(start, terminationInclusive);
         this.myNumberOfOccurrences = between + 1;
         this.myTerminationDateInclusive = terminationInclusive;
+        this.myFromDate = true;
     }
 
     /**
@@ -57,6 +63,7 @@ public class Termination {
         this.myNumberOfOccurrences = numberOfOccurrences;
         // termination date is start plus (numberOfOccurrences - 1) intervals
         this.myTerminationDateInclusive = start.plus(numberOfOccurrences - 1, frequency);
+        this.myFromDate = false;
     }
 
 }

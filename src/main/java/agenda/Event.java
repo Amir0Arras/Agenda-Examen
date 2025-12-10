@@ -96,9 +96,17 @@ public class Event {
 
         // simple (non-repetitive) event: check interval intersection with day bounds
         if (myRepetition == null) {
-            LocalDateTime dayStart = aDay.atStartOfDay();
-            LocalDateTime dayEnd = dayStart.plusDays(1);
-            return myStart.isBefore(dayEnd) && eventEnd.isAfter(dayStart);
+            long hours = myDuration.toHours();
+            if (hours > 0 && hours % 24 == 0) {
+                // Duration is an exact multiple of full days: include start..start+days-1
+                long days = hours / 24;
+                LocalDate lastIncluded = startDate.plusDays(days - 1);
+                return !aDay.isBefore(startDate) && !aDay.isAfter(lastIncluded);
+            } else {
+                LocalDateTime dayStart = aDay.atStartOfDay();
+                LocalDateTime dayEnd = dayStart.plusDays(1);
+                return myStart.isBefore(dayEnd) && eventEnd.isAfter(dayStart);
+            }
         }
 
         // repetitive event
@@ -106,8 +114,16 @@ public class Event {
 
         if (aDay.isBefore(startDate)) return false;
 
-        // Consider the candidate occurrence starting on that day and the previous occurrence
-        long unitsToDay = freq.between(startDate, aDay);
+        // Compute number of units to the target day.
+        long unitsToDay;
+        if (freq == ChronoUnit.MONTHS) {
+            // count months by year/month difference (ignore day-of-month so Jan31->Feb gives 1)
+            unitsToDay = (aDay.getYear() - startDate.getYear()) * 12L
+                    + (aDay.getMonthValue() - startDate.getMonthValue());
+        } else {
+            unitsToDay = freq.between(startDate, aDay);
+        }
+
         LocalDate occOnDay = startDate.plus(unitsToDay, freq);
         LocalDate occPrev = occOnDay.minus(1, freq);
 
@@ -115,7 +131,8 @@ public class Event {
 
         for (LocalDate occDate : candidates) {
             if (occDate.isBefore(startDate)) continue;
-            // Check termination if exists
+
+            // Check termination if exists (by date or by count)
             Termination term = myRepetition.getTermination();
             if (term != null) {
                 LocalDate termDate = term.terminationDateInclusive();
@@ -124,12 +141,28 @@ public class Event {
                 if (termDate != null && occDate.isAfter(termDate)) continue;
                 if (maxOcc > 0 && occIndex > maxOcc) continue;
             }
+
             // Check exception for the occurrence starting that date
             if (myRepetition.isException(occDate)) continue;
 
             // Build the occurrence's start/end DateTimes
             LocalDateTime occStart = occDate.atTime(myStart.toLocalTime());
             LocalDateTime occEnd = occStart.plus(myDuration);
+
+            // If there is a termination date constructed from a date, clip occurrence end to the end of termination day,
+            // so an occurrence starting on the last allowed day cannot make the event appear after termination.
+            if (term != null && term.terminationDateInclusive() != null && term.isFromDate()) {
+                LocalDate termDate = term.terminationDateInclusive();
+                LocalDateTime occAllowedEnd = termDate.plusDays(1).atStartOfDay();
+                if (!occStart.isBefore(occAllowedEnd)) {
+                    // occurrence starts at/after the allowed end -> not allowed
+                    continue;
+                }
+                if (occEnd.isAfter(occAllowedEnd)) {
+                    occEnd = occAllowedEnd;
+                }
+            }
+
             LocalDateTime dayStart = aDay.atStartOfDay();
             LocalDateTime dayEnd = dayStart.plusDays(1);
 
@@ -161,6 +194,13 @@ public class Event {
      */
     public Duration getDuration() {
         return myDuration;
+    }
+
+    /**
+     * Indique si cet événement est répétitif (true si setRepetition a été appelé).
+     */
+    public boolean isRepetitive() {
+        return myRepetition != null;
     }
 
     @Override
